@@ -61,7 +61,7 @@ void setup() {
    //By default .begin() will set I2C SCL to Standard Speed mode of 100kHz
   Wire.setClock(400000); //Optional - set I2C SCL to High Speed Mode of 400kHz
   
-  // set up the LCD's number of columns and rows:
+  // set up the LCD for I2C
   lcd.begin(Wire);
   // Print a message to the LCD.
   lcd.print("Hello, World!");
