@@ -82,33 +82,33 @@
  */
 #include "QwiicSerLCD.h"
 
-//<<constructor>> Use this constructor if you have changed the i2c address
-QwiicSerLCD::QwiicSerLCD(byte i2c_addr){
-	_i2cAddr 		= i2c_addr;
-}
-
-
 //<<constructor>> setup using default i2c address (0x72)
 QwiicSerLCD::QwiicSerLCD(){
 }
-
-
 
 //<<destructor>>
 QwiicSerLCD::~QwiicSerLCD(){/*nothing to destruct*/}
 
 /*
  * Set up the i2c communication with the SerLCD.
+ * wirePort - TwoWire port
+ * ic2_addr - I2C address
  */
-void QwiicSerLCD::begin(byte cols, byte rows) {
-  //Set display size
-  _cols = cols;
-  _rows = rows;
+void QwiicSerLCD::begin(TwoWire &wirePort, byte i2c_addr) {
+  _i2cAddr 		= i2c_addr;
 
-  Wire.begin(); //Join the bus as master
+  begin(wirePort);
+} // begin
 
-  //By default .begin() will set I2C SCL to Standard Speed mode of 100kHz
-  Wire.setClock(400000); //Optional - set I2C SCL to High Speed Mode of 400kHz
+/*
+ * Set up the i2c communication with the SerLCD.
+ */
+void QwiicSerLCD::begin(TwoWire &wirePort) {
+  _i2cPort = &wirePort; //Grab which port the user wants us to use
+
+  //We expect caller to begin their I2C port, with the speed of their choice external to the library
+  //But if they forget, we start the hardware here.
+  _i2cPort->begin();
 
   //Call init function since display may have been left in unknown state
   init();
@@ -119,14 +119,14 @@ void QwiicSerLCD::begin(byte cols, byte rows) {
  *
  */
 void QwiicSerLCD::init() {
-   Wire.beginTransmission(_i2cAddr); // transmit to device #1
-   Wire.write(SPECIAL_COMMAND); //Send special command character
-   Wire.write(LCD_DISPLAYCONTROL | _displayControl); //Send the display command
-   Wire.write(SPECIAL_COMMAND); //Send special command character
-   Wire.write(LCD_ENTRYMODESET | _displayMode); //Send the entry mode command
-   Wire.write(SETTING_COMMAND); //Put LCD into setting mode
-   Wire.write(CLEAR_COMMAND); //Send clear display command
-   Wire.endTransmission(); //Stop I2C transmission
+   _i2cPort->beginTransmission(_i2cAddr); // transmit to device #1
+   _i2cPort->write(SPECIAL_COMMAND); //Send special command character
+   _i2cPort->write(LCD_DISPLAYCONTROL | _displayControl); //Send the display command
+   _i2cPort->write(SPECIAL_COMMAND); //Send special command character
+   _i2cPort->write(LCD_ENTRYMODESET | _displayMode); //Send the entry mode command
+   _i2cPort->write(SETTING_COMMAND); //Put LCD into setting mode
+   _i2cPort->write(CLEAR_COMMAND); //Send clear display command
+   _i2cPort->endTransmission(); //Stop I2C transmission
    delay(10);
  } //init
  /*
@@ -136,10 +136,10 @@ void QwiicSerLCD::init() {
   * byte command to send
   */
  void QwiicSerLCD::command(byte command) {
-   Wire.beginTransmission(_i2cAddr); // transmit to device
-   Wire.write(SETTING_COMMAND); //Put LCD into setting mode
-   Wire.write(command); //Send the command code
-   Wire.endTransmission(); //Stop I2C transmission
+   _i2cPort->beginTransmission(_i2cAddr); // transmit to device
+   _i2cPort->write(SETTING_COMMAND); //Put LCD into setting mode
+   _i2cPort->write(command); //Send the command code
+   _i2cPort->endTransmission(); //Stop I2C transmission
 
    delay(10); //Hang out for a bit
 }
@@ -150,10 +150,10 @@ void QwiicSerLCD::init() {
  * byte command to send
  */
 void QwiicSerLCD::specialCommand(byte command) {
-  Wire.beginTransmission(_i2cAddr); // transmit to device
-  Wire.write(SPECIAL_COMMAND); //Send special command character
-  Wire.write(command); //Send the command code
-  Wire.endTransmission(); //Stop I2C transmission
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device
+  _i2cPort->write(SPECIAL_COMMAND); //Send special command character
+  _i2cPort->write(command); //Send the command code
+  _i2cPort->endTransmission(); //Stop I2C transmission
 
   delay(10); //Hang out for a bit
 }
@@ -165,13 +165,13 @@ void QwiicSerLCD::specialCommand(byte command) {
  * byte count number of times to send
  */
 void QwiicSerLCD::specialCommand(byte command, byte count) {
-  Wire.beginTransmission(_i2cAddr); // transmit to device
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device
 
   for (int i = 0; i < count; i++) {
-    Wire.write(SPECIAL_COMMAND); //Send special command character
-    Wire.write(command); //Send command code
+    _i2cPort->write(SPECIAL_COMMAND); //Send special command character
+    _i2cPort->write(command); //Send command code
   } // for
-  Wire.endTransmission(); //Stop I2C transmission
+  _i2cPort->endTransmission(); //Stop I2C transmission
 
   delay(10); //Hang out for a bit
 }
@@ -207,7 +207,6 @@ void QwiicSerLCD::setCursor(byte col, byte row) {
   //kepp variables in bounds
   row = max(0, row);      //row cannot be less than 0
   row = min(row, MAX_ROWS-1); //row cannot be greater than max rows
-  row = min(row, _rows-1); // row must be from 0 to rows-1
 
   //send the command
   specialCommand(LCD_SETDDRAMADDR | (col + row_offsets[row]));
@@ -220,14 +219,14 @@ void QwiicSerLCD::setCursor(byte col, byte row) {
  */
 void QwiicSerLCD::createChar(byte location, byte charmap[]) {
   location &= 0x7; // we only have 8 locations 0-7
-  Wire.beginTransmission(_i2cAddr);
+  _i2cPort->beginTransmission(_i2cAddr);
   //Semd request to create a customer character
-  Wire.write(SETTING_COMMAND); //Put LCD into setting mode
-  Wire.write(27 + location);
+  _i2cPort->write(SETTING_COMMAND); //Put LCD into setting mode
+  _i2cPort->write(27 + location);
   for (int i = 0; i < 8; i++) {
-    Wire.write(charmap[i]);
+    _i2cPort->write(charmap[i]);
   } // for
-  Wire.endTransmission();
+  _i2cPort->endTransmission();
   delay(10);
 }
 /*
@@ -246,9 +245,9 @@ void QwiicSerLCD::writeChar(byte location) {
  * Required for Print.
  */
 size_t QwiicSerLCD::write(uint8_t b) {
-  Wire.beginTransmission(_i2cAddr); // transmit to device
-  Wire.write(b);
-  Wire.endTransmission(); //Stop I2C transmission
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device
+  _i2cPort->write(b);
+  _i2cPort->endTransmission(); //Stop I2C transmission
   delay(10); // wait a bit
  } // write
 /*
@@ -257,12 +256,12 @@ size_t QwiicSerLCD::write(uint8_t b) {
  */
 size_t QwiicSerLCD::write(const uint8_t *buffer, size_t size) {
   size_t n = 0;
-  Wire.beginTransmission(_i2cAddr); // transmit to device
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device
 	while (size--) {
-	  Wire.write(*buffer++);
+	  _i2cPort->write(*buffer++);
 	  n++;
 	} //while
-  Wire.endTransmission(); //Stop I2C transmission
+  _i2cPort->endTransmission(); //Stop I2C transmission
   delay(10); //
   return n;
 } //write
@@ -423,29 +422,42 @@ void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
 
 
   //send commands to the display to set backlights
-  Wire.beginTransmission(_i2cAddr); // transmit to device
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device
 
   //Turn display off to hide confirmation messages
   _displayControl &= ~LCD_DISPLAYON;
-  Wire.write(SPECIAL_COMMAND); //Send special command character
-  Wire.write(LCD_DISPLAYCONTROL | _displayControl);
+  _i2cPort->write(SPECIAL_COMMAND); //Send special command character
+  _i2cPort->write(LCD_DISPLAYCONTROL | _displayControl);
 
   //Set the red, green and blue values
-  Wire.write(SETTING_COMMAND); //Set red backlight amount
-  Wire.write(red);
-  Wire.write(SETTING_COMMAND); //Set green backlight amount
-  Wire.write(green);
-  Wire.write(SETTING_COMMAND); //Set blue backlight amount
-  Wire.write(blue);
+  _i2cPort->write(SETTING_COMMAND); //Set red backlight amount
+  _i2cPort->write(red);
+  _i2cPort->write(SETTING_COMMAND); //Set green backlight amount
+  _i2cPort->write(green);
+  _i2cPort->write(SETTING_COMMAND); //Set blue backlight amount
+  _i2cPort->write(blue);
 
   //Turn display back on and end
   _displayControl |= LCD_DISPLAYON;
-  Wire.write(SPECIAL_COMMAND); //Send special command character
-  Wire.write(LCD_DISPLAYCONTROL | _displayControl); //Turn display on as before
-  Wire.endTransmission(); //Stop I2C transmission
+  _i2cPort->write(SPECIAL_COMMAND); //Send special command character
+  _i2cPort->write(LCD_DISPLAYCONTROL | _displayControl); //Turn display on as before
+  _i2cPort->endTransmission(); //Stop I2C transmission
   delay(50); //This one is a bit slow
- } // setBacklight
+} // setBacklight
+/* New backlight function
+void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
 
+  //send commands to the display to set backlights
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device
+  _i2cPort->write(SETTING_COMMAND); //Send special command character
+  _i2cPort->write(SET_RGB_COMMAND); //Send the set RGB character '+' or plus
+  _i2cPort->write(r); //Send the red value
+  _i2cPort->write(g); //Send the green value
+  _i2cPort->write(b); //Send the blue value
+  _i2cPort->endTransmission(); //Stop I2C transmission
+  delay(10);
+ } // setBacklight
+*/
 /*
  * Set the text to flow from left to right.  This is the direction
  * that is common to most Western languages.
@@ -486,11 +498,11 @@ void QwiicSerLCD::noAutoscroll() {
  */
 void QwiicSerLCD::setContrast(byte new_val) {
   //send commands to the display to set backlights
-  Wire.beginTransmission(_i2cAddr); // transmit to device
-  Wire.write(SETTING_COMMAND); //Send contrast command
-  Wire.write(CONTRAST_COMMAND); //0x18
-  Wire.write(new_val); //Send new contrast value
-  Wire.endTransmission(); //Stop I2C transmission
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device
+  _i2cPort->write(SETTING_COMMAND); //Send contrast command
+  _i2cPort->write(CONTRAST_COMMAND); //0x18
+  _i2cPort->write(new_val); //Send new contrast value
+  _i2cPort->endTransmission(); //Stop I2C transmission
 
   delay(10); //Wait a little bit
 } //setContrast
@@ -505,11 +517,11 @@ void QwiicSerLCD::setContrast(byte new_val) {
  */
 void QwiicSerLCD::setAddress(byte new_addr) {
   //send commands to the display to set backlights
-  Wire.beginTransmission(_i2cAddr); // transmit to device on old address
-  Wire.write(SETTING_COMMAND); //Send contrast command
-  Wire.write(ADDRESS_COMMAND);  //0x19
-  Wire.write(new_addr); //Send new contrast value
-  Wire.endTransmission(); //Stop I2C transmission
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device on old address
+  _i2cPort->write(SETTING_COMMAND); //Send contrast command
+  _i2cPort->write(ADDRESS_COMMAND);  //0x19
+  _i2cPort->write(new_addr); //Send new contrast value
+  _i2cPort->endTransmission(); //Stop I2C transmission
 
   //Update our own address so we can still talk to the display
   _i2cAddr = new_addr;

@@ -34,7 +34,7 @@
  by Tom Igoe
  modified 7 Nov 2016
  by Arturo Guadalupi
- modified 22 Aug 2018
+ modified 29 Aug 2018
  by Gaston Williams
 
  This example code is in the public domain.
@@ -56,9 +56,13 @@ QwiicSerLCD lcd;
 
 
 void setup() {
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
-  //lcd.begin(20, 4);
+  //Setup Wire
+  Wire.begin();
+   //By default .begin() will set I2C SCL to Standard Speed mode of 100kHz
+  Wire.setClock(400000); //Optional - set I2C SCL to High Speed Mode of 400kHz
+  
+  // set up the LCD for I2C
+  lcd.begin(Wire);
 }
 
 void loop() {
