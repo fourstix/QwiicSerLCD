@@ -415,6 +415,37 @@ void QwiicSerLCD::setBacklight(unsigned long rgb) {
  * set the backlight color.
  */
 void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
+  // map the byte value range to backlight command range
+  byte red   = 128 + map(r, 0, 255, 0, 29);
+  byte green = 158 + map(g, 0, 255, 0, 29);
+  byte blue  = 188 + map(b, 0, 255, 0, 29);
+
+
+  //send commands to the display to set backlights
+  _i2cPort->beginTransmission(_i2cAddr); // transmit to device
+
+  //Turn display off to hide confirmation messages
+  _displayControl &= ~LCD_DISPLAYON;
+  _i2cPort->write(SPECIAL_COMMAND); //Send special command character
+  _i2cPort->write(LCD_DISPLAYCONTROL | _displayControl);
+
+  //Set the red, green and blue values
+  _i2cPort->write(SETTING_COMMAND); //Set red backlight amount
+  _i2cPort->write(red);
+  _i2cPort->write(SETTING_COMMAND); //Set green backlight amount
+  _i2cPort->write(green);
+  _i2cPort->write(SETTING_COMMAND); //Set blue backlight amount
+  _i2cPort->write(blue);
+
+  //Turn display back on and end
+  _displayControl |= LCD_DISPLAYON;
+  _i2cPort->write(SPECIAL_COMMAND); //Send special command character
+  _i2cPort->write(LCD_DISPLAYCONTROL | _displayControl); //Turn display on as before
+  _i2cPort->endTransmission(); //Stop I2C transmission
+  delay(50); //This one is a bit slow
+} // setBacklight
+/* New backlight function
+void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
 
   //send commands to the display to set backlights
   _i2cPort->beginTransmission(_i2cAddr); // transmit to device
@@ -426,7 +457,7 @@ void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
   _i2cPort->endTransmission(); //Stop I2C transmission
   delay(10);
  } // setBacklight
-
+*/
 /*
  * Set the text to flow from left to right.  This is the direction
  * that is common to most Western languages.
