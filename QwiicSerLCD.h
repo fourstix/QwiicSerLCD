@@ -17,6 +17,7 @@
 #define CLEAR_COMMAND    0x2D //45, -, the dash character: command to clear and home the display
 #define CONTRAST_COMMAND 0x18 //Command to change the contrast setting
 #define ADDRESS_COMMAND  0x19 //Command to change the i2c address
+#define SET_RGB_COMMAND  0x2B //43, +, the plus character: command to set backlight RGB value
 
 
 // special commands
@@ -49,10 +50,10 @@
 class QwiicSerLCD : public Print {
 
 public:
-	QwiicSerLCD(byte i2c_addr);
 	QwiicSerLCD();
 	~QwiicSerLCD();
-	void begin(byte cols, byte rows);
+	void begin(TwoWire &wirePort);
+	void begin(TwoWire &wirePort, byte i2c_addr);
 	void clear();
 	void home();
 	void setCursor(byte col, byte row);
@@ -87,11 +88,10 @@ public:
 	void specialCommand(byte command);
     void specialCommand(byte command, byte count);
 private:
+    TwoWire *_i2cPort; //The generic connection to user's chosen I2C hardware
 	byte _i2cAddr = DISPLAY_ADDRESS1;
 	byte _displayControl = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
     byte _displayMode    = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
-    byte _cols = MAX_COLUMNS;
-    byte _rows = MAX_ROWS;
     void init();
 };
 
