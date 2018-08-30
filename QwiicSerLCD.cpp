@@ -297,7 +297,7 @@ void QwiicSerLCD::createChar(byte location, byte charmap[]) {
     transmit(charmap[i]);
   } // for
   endTransmission();
-  delay(10);
+  delay(50);  //This takes a bit longer
 }
 /*
  * Write a customer character to the display
