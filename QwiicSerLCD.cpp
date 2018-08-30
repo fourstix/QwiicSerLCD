@@ -82,7 +82,7 @@
  */
 #include "QwiicSerLCD.h"
 
-//<<constructor>> setup using default i2c address (0x72)
+//<<constructor>> setup using defaults
 QwiicSerLCD::QwiicSerLCD(){
 }
 
@@ -104,8 +104,9 @@ void QwiicSerLCD::begin(TwoWire &wirePort, byte i2c_addr) {
  * Set up the i2c communication with the SerLCD.
  */
 void QwiicSerLCD::begin(TwoWire &wirePort) {
-  _commType = I2C_MODE;
   _i2cPort = &wirePort; //Grab which port the user wants us to use
+  _serialPort = NULL; //Set to null to be safe
+  _spiPort = NULL;    //Set to null to be safe
 
   //We expect caller to begin their I2C port, with the speed of their choice external to the library
   //But if they forget, we start the hardware here.
@@ -115,15 +116,31 @@ void QwiicSerLCD::begin(TwoWire &wirePort) {
   init();
 } // begin
 /*
- * Set up the i2c communication with the SerLCD.
+ * Set up the serial communication with the SerLCD.
  */
 void QwiicSerLCD::begin(Stream &serialPort) {
-  _commType = SERIAL_MODE;
   _serialPort = &serialPort; //Grab which port the user wants us to use
+  _i2cPort = NULL; //Set to null to be safe
+  _spiPort = NULL; //Set to null to be safe
 
-  //
-  //We start the hardware here, with the speed of their choice
-  //_serialPort->begin(speed);
+  //Call init function since display may have been left in unknown state
+  init();
+} // begin
+/*
+ * Set up the SPI communication with the SerLCD.
+ */
+void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin) {
+  _csPin = csPin;
+
+  begin(spiPort);
+} // begin
+/*
+ * Set up the SPI communication with the SerLCD.
+ */
+void QwiicSerLCD::begin(SPIClass &spiPort) {
+  _spiPort = &spiPort; //Grab the port the user wants us to use
+  _i2cPort = NULL; //Set to null to be safe
+  _serialPort = NULL; //Set to null to be safe
 
   //Call init function since display may have been left in unknown state
   init();
@@ -133,12 +150,12 @@ void QwiicSerLCD::begin(Stream &serialPort) {
  * Begin transmission to the device
  */
 void QwiicSerLCD::beginTransmission() {
-	if (_commType == I2C_MODE) {
+	//do nothing if using serialPort
+	if (_i2cPort) {
 		_i2cPort->beginTransmission(_i2cAddr); // transmit to device
-	} else if (_commType == SERIAL_MODE){
-		//do nothing for Serial Mode ?
-	} else if (_commType == SPI_MODE) {
-		//_spiPort->beginTransaction(_spiSettings);
+	} else if (_spiPort) {
+		digitalWrite(_csPin, LOW);
+		delay(10); //wait a bit for display to enable
 	}  // if-else
 } //beginTransmission
 /*
@@ -147,24 +164,24 @@ void QwiicSerLCD::beginTransmission() {
  * data - byte to send
  */
  void QwiicSerLCD::transmit(uint8_t data) {
-   if (_commType == I2C_MODE) {
+   if (_i2cPort) {
    		_i2cPort->write(data); // transmit to device
-   	} else if (_commType == SERIAL_MODE){
+   	} else if (_serialPort){
    		_serialPort->write(data);
-   	} else if (_commType == SPI_MODE) {
-   	   //_spiPort->write(data);
+   	} else if (_spiPort) {
+   	   _spiPort->transfer(data);
 	}  // if-else
  } //transmit
 /*
  * Begin transmission to the device
  */
 void QwiicSerLCD::endTransmission() {
-	if (_commType == I2C_MODE) {
+	//do nothing if using Serial port
+	if (_i2cPort) {
 		_i2cPort->endTransmission(); // transmit to device
-	} else if (_commType == SERIAL_MODE){
-		//do nothing for Serial Mode ?
-	} else if (_commType == SPI_MODE) {
-		//SPI end logic goes here
+	} else if (_spiPort) {
+		digitalWrite(_csPin, HIGH);
+		delay(10); //wait a bit for display to disable
 	}  // if-else
 } //beginTransmission
 /*

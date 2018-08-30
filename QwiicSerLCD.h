@@ -6,12 +6,6 @@
 #include <Stream.h>
 #include <SPI.h>
 
-//Communication Modes
-#define I2C_MODE    0
-#define SERIAL_MODE 1
-#define SPI_MODE    2
-
-
 #define DISPLAY_ADDRESS1 0x72 //This is the default address of the OpenLCD
 #define MAX_ROWS      	  4
 #define MAX_COLUMNS  	 20
@@ -62,6 +56,8 @@ public:
 	void begin(TwoWire &wirePort);
 	void begin(TwoWire &wirePort, byte i2c_addr);
 	void begin(Stream &serial);
+	void begin(SPIClass &spiPort);
+	void begin(SPIClass &spiPort, byte csPin);
 	void clear();
 	void home();
 	void setCursor(byte col, byte row);
@@ -96,10 +92,10 @@ public:
 	void specialCommand(byte command);
     void specialCommand(byte command, byte count);
 private:
-    TwoWire  *_i2cPort; //The generic connection to user's chosen I2C hardware
-    Stream   *_serialPort; //The generic connection to user's chosen serial hardware
-    SPIClass *_spiPort;  //The generic connection to user's chosen spi hardware
-    byte _commType = I2C_MODE;
+    TwoWire  *_i2cPort = NULL; //The generic connection to user's chosen I2C hardware
+    Stream   *_serialPort = NULL; //The generic connection to user's chosen serial hardware
+    SPIClass *_spiPort = NULL;  //The generic connection to user's chosen spi hardware
+    byte  _csPin = 10;
 	byte _i2cAddr = DISPLAY_ADDRESS1;
 	byte _displayControl = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
     byte _displayMode    = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
