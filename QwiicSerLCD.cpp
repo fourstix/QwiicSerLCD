@@ -197,7 +197,7 @@ void QwiicSerLCD::init() {
   transmit(SETTING_COMMAND); //Put LCD into setting mode
   transmit(CLEAR_COMMAND); //Send clear display command
   endTransmission(); //Stop transmission
-   delay(10);
+   delay(50); //let things settle a bit
  } //init
  /*
   * Send a command to the display.
@@ -225,7 +225,7 @@ void QwiicSerLCD::specialCommand(byte command) {
   transmit(command); //Send the command code
   endTransmission(); //Stop transmission
 
-  delay(10); //Hang out for a bit
+  delay(50); //Wait a bit longer for special display commands
 }
 /*
  * Send multiple special commands to the display.
@@ -243,7 +243,7 @@ void QwiicSerLCD::specialCommand(byte command, byte count) {
   } // for
   endTransmission(); //Stop transmission
 
-  delay(10); //Hang out for a bit
+  delay(50); //Wait a bit longer for special display commands
 }
 
 /*
