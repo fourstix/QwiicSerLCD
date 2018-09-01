@@ -65,25 +65,21 @@ void setup()
   digitalWrite(csPin, HIGH); //By default, don't be selecting OpenLCD
 
   SPI.begin(); //Start SPI communication
-  //SPI.beginTransaction(SPISettings(100000, MSBFIRST, SPI_MODE0));
-  SPI.setClockDivider(SPI_CLOCK_DIV128); //Slow down the master a bit
 
-  lcd.begin(SPI, csPin);
+  lcd.begin(SPI, csPin, SPISettings(100000, MSBFIRST, SPI_MODE0));
+//For Arduino versions before 1.6, use the two lines below instead
+//  SPI.setClockDivider(SPI_CLOCK_DIV128); //Slow down the master a bit
+//  lcd.begin(SPI, csPin);  
 }
 
 void loop() 
 {
   cycles++; //Counting cycles! Yay!
 
-  //Send the clear display command to the display - this forces the cursor to return to the beginning of the display
-//  digitalWrite(csPin, LOW); //Drive the CS pin low to select OpenLCD
-//  SPI.transfer('|'); //Put LCD into setting mode
-//  SPI.transfer('-'); //Send clear display command
-//  digitalWrite(csPin, HIGH); //Release the CS pin to de-select OpenLCD
   lcd.clear();
   char tempString[50]; //Needs to be large enough to hold the entire string with up to 5 digits
   sprintf(tempString, "Cycles: %d", cycles);
-  //spiSendString(tempString);
+
   lcd.print(tempString);
 
   //25ms works well
@@ -92,12 +88,4 @@ void loop()
   delay(250);
 }
 
-//Sends a string over SPI
-//void spiSendString(char* data)
-//{
-//  digitalWrite(csPin, LOW); //Drive the CS pin low to select OpenLCD
-//  for(byte x = 0 ; data[x] != '\0' ; x++) //Send chars until we hit the end of the string
-//    SPI.transfer(data[x]);
-//  digitalWrite(csPin, HIGH); //Release the CS pin to de-select OpenLCD
-//}
 

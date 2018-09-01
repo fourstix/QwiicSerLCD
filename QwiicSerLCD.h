@@ -56,8 +56,12 @@ public:
 	void begin(TwoWire &wirePort);
 	void begin(TwoWire &wirePort, byte i2c_addr);
 	void begin(Stream &serial);
-	void begin(SPIClass &spiPort);
 	void begin(SPIClass &spiPort, byte csPin);
+//Only available for Arduino 1.6 and greater
+#ifdef SPI_HAS_TRANSACTION
+    //pass SPISettings by value to allow settings object creation in fucntion call like examples
+    void begin(SPIClass &spiPort, byte csPin, SPISettings spiSettings);
+#endif
 	void clear();
 	void home();
 	void setCursor(byte col, byte row);
@@ -95,6 +99,12 @@ private:
     TwoWire  *_i2cPort = NULL; //The generic connection to user's chosen I2C hardware
     Stream   *_serialPort = NULL; //The generic connection to user's chosen serial hardware
     SPIClass *_spiPort = NULL;  //The generic connection to user's chosen spi hardware
+
+//SPI transactions only available for Arduino 1.6 and later
+#ifdef SPI_HAS_TRANSACTION
+    SPISettings _spiSettings = SPISettings(100000, MSBFIRST, SPI_MODE0);
+    bool        _spiTransaction = false;  //since we pass by value, we need a flag
+#endif
     byte  _csPin = 10;
 	byte _i2cAddr = DISPLAY_ADDRESS1;
 	byte _displayControl = LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF;
