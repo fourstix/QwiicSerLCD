@@ -130,6 +130,10 @@ void QwiicSerLCD::begin(Stream &serialPort) {
 #ifdef SPI_HAS_TRANSACTION
 /*
  * Set up the SPI communication with the SerLCD using SPI transactions
+ *
+ * NB we pass SPISettings by value, since many of the examples for the SPI
+ * transactions create the settings object in the function call, and that only
+ * works if the function passes the object by value.
  */
 void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin, SPISettings spiSettings) {
   _spiSettings = spiSettings;
@@ -143,6 +147,8 @@ void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin, SPISettings spiSettings) 
  */
 void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin) {
   _csPin = csPin;
+
+  pinMode(csPin, OUTPUT);  //set pin to output, in case user forgot
   digitalWrite(csPin, HIGH); //deselect dispaly, in case user forgot
 
   _spiPort = &spiPort; //Grab the port the user wants us to use
