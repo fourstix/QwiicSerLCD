@@ -12,8 +12,8 @@
 #include <QwiicSerLCD.h>
 #include <SPI.h>
 
-
 byte csPin = 10; //You can use any output pin but for this example we use 10
+
 
 // initialize the library
 QwiicSerLCD lcd;
@@ -21,12 +21,17 @@ QwiicSerLCD lcd;
 void setup() {
   pinMode(csPin, OUTPUT);
   SPI.begin();
-  SPI.setClockDivider(SPI_CLOCK_DIV128); //Slow down the master a bit
 
-  lcd.begin(SPI, csPin);
-  // Print a message to the LCD.
+  lcd.begin(SPI, csPin, SPISettings(100000, MSBFIRST, SPI_MODE0));
+//For Arduino versions before 1.6, use the two lines below instead
+//  SPI.setClockDivider(SPI_CLOCK_DIV128); //Slow down the master a bit
+//  lcd.begin(SPI, csPin);
+
+  //Clear the display
+  lcd.clear();
+  
+  //Print a message to the LCD.
   lcd.print("Hello, World!");
-;
 }
 
 void loop() {
@@ -35,6 +40,5 @@ void loop() {
   lcd.setCursor(0, 1);
   // print the number of seconds since reset:
   lcd.print(millis() / 1000);
-//  delay(250);
 }
 

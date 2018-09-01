@@ -126,21 +126,30 @@ void QwiicSerLCD::begin(Stream &serialPort) {
   //Call init function since display may have been left in unknown state
   init();
 } // begin
+//Only available in Arduino 1.6 or later
+#ifdef SPI_HAS_TRANSACTION
+/*
+ * Set up the SPI communication with the SerLCD using SPI transactions
+ */
+void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin, SPISettings spiSettings) {
+  _spiSettings = spiSettings;
+  _spiTransaction = true;
+
+  begin(spiPort, csPin);
+} // begin
+#endif
 /*
  * Set up the SPI communication with the SerLCD.
  */
 void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin) {
   _csPin = csPin;
+  digitalWrite(csPin, HIGH); //deselect dispaly, in case user forgot
 
-  begin(spiPort);
-} // begin
-/*
- * Set up the SPI communication with the SerLCD.
- */
-void QwiicSerLCD::begin(SPIClass &spiPort) {
   _spiPort = &spiPort; //Grab the port the user wants us to use
   _i2cPort = NULL; //Set to null to be safe
   _serialPort = NULL; //Set to null to be safe
+
+  _spiPort->begin(); //call begin, in case the user forgot
 
   //Call init function since display may have been left in unknown state
   init();
@@ -154,6 +163,11 @@ void QwiicSerLCD::beginTransmission() {
 	if (_i2cPort) {
 		_i2cPort->beginTransmission(_i2cAddr); // transmit to device
 	} else if (_spiPort) {
+#ifdef SPI_HAS_TRANSACTION
+        if (_spiTransaction) {
+			_spiPort->beginTransaction(_spiSettings); //gain control of the SPI bus
+		} //if _spiSettings
+#endif
 		digitalWrite(_csPin, LOW);
 		delay(10); //wait a bit for display to enable
 	}  // if-else
@@ -180,7 +194,12 @@ void QwiicSerLCD::endTransmission() {
 	if (_i2cPort) {
 		_i2cPort->endTransmission(); // transmit to device
 	} else if (_spiPort) {
-		digitalWrite(_csPin, HIGH);
+		digitalWrite(_csPin, HIGH);  //disable display
+#ifdef SPI_HAS_TRANSACTION
+        if (_spiTransaction) {
+			_spiPort->endTransaction(); //let go of the SPI bus
+		} //if _spiSettings
+#endif
 		delay(10); //wait a bit for display to disable
 	}  // if-else
 } //beginTransmission
