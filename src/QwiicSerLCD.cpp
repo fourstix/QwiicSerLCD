@@ -1,5 +1,5 @@
 /*
- * LCD library for Sparkfun RGB 3.3v Serial Open LCD display
+ * LCD library for SparkFun RGB 3.3v Serial Open LCD display
  * with an attached Qwiic adapter.
  *
  * By: Gaston R. Williams
@@ -7,10 +7,9 @@
  *
  * License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
  *
-
  * This library is based heavily on the LiquidCrystal_I2C library and the sample code provided with
- * the Sparkfun Serial OpenLCD display.  The original LiquidCrystal library by David A. Mellis and
- * modified by Limor Fried and the OpenLCD code by Nathan Seidle at Sparkfun.
+ * the SparkFun Serial OpenLCD display.  The original LiquidCrystal library by David A. Mellis and
+ * modified by Limor Fried and the OpenLCD code by Nathan Seidle at SparkFun.
  *
  * The LiquidCrystal_I2C library was based on the work by DFRobot.
  * (That's the only attribution I found in the code I have. If anyone can provide better information,
@@ -37,7 +36,7 @@
  * then "System reset Power cycle me" and the backlight will begin to blink. Now power down OpenLCD and remove
  * the RX/GND jumper. OpenLCD is now reset.
  *
- * To get this code to work, attach a Qwiic adapter to an OpenLCD. Use the Qwiic cable to attach adapter to a Sparkfun Blackboard or
+ * To get this code to work, attach a Qwiic adapter to an OpenLCD. Use the Qwiic cable to attach adapter to a SparkFun Blackboard or
  * an Arduino Uno with the Qwiic shield.
  *
  * The OpenLCD has 4.7k pull up resistors on SDA and SCL. If you have other devices on the
@@ -115,6 +114,7 @@ void QwiicSerLCD::begin(TwoWire &wirePort) {
   //Call init function since display may have been left in unknown state
   init();
 } // begin
+
 /*
  * Set up the serial communication with the SerLCD.
  */
@@ -126,6 +126,7 @@ void QwiicSerLCD::begin(Stream &serialPort) {
   //Call init function since display may have been left in unknown state
   init();
 } // begin
+
 //Only available in Arduino 1.6 or later
 #ifdef SPI_HAS_TRANSACTION
 /*
@@ -142,6 +143,7 @@ void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin, SPISettings spiSettings) 
   begin(spiPort, csPin);
 } // begin
 #endif
+
 /*
  * Set up the SPI communication with the SerLCD.
  */
@@ -160,6 +162,7 @@ void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin) {
   //Call init function since display may have been left in unknown state
   init();
 } // begin
+
 //private functions for serial transmission
 /*
  * Begin transmission to the device
@@ -178,6 +181,7 @@ void QwiicSerLCD::beginTransmission() {
 		delay(10); //wait a bit for display to enable
 	}  // if-else
 } //beginTransmission
+
 /*
  * Send data to the device
  *
@@ -192,6 +196,7 @@ void QwiicSerLCD::beginTransmission() {
    	   _spiPort->transfer(data);
 	}  // if-else
  } //transmit
+
 /*
  * Begin transmission to the device
  */
@@ -209,6 +214,7 @@ void QwiicSerLCD::endTransmission() {
 		delay(10); //wait a bit for display to disable
 	}  // if-else
 } //beginTransmission
+
 /*
  * Initialize the display
  *
@@ -224,6 +230,7 @@ void QwiicSerLCD::init() {
   endTransmission(); //Stop transmission
    delay(50); //let things settle a bit
  } //init
+
  /*
   * Send a command to the display.
   * Used by other functions.
@@ -252,6 +259,7 @@ void QwiicSerLCD::specialCommand(byte command) {
 
   delay(50); //Wait a bit longer for special display commands
 }
+
 /*
  * Send multiple special commands to the display.
  * Used by other functions.
@@ -280,6 +288,7 @@ void QwiicSerLCD::clear() {
   command(CLEAR_COMMAND);
   delay(10);  // a little extra delay after clear
 }
+
 /*
  * Send the home command to the display.  This returns the cursor
  * to return to the beginning of the display, without clearing
@@ -288,6 +297,7 @@ void QwiicSerLCD::clear() {
 void QwiicSerLCD::home() {
  specialCommand(LCD_RETURNHOME);
 }
+
 /*
  * Set the cursor position to a particular column and row.
  *
@@ -324,6 +334,7 @@ void QwiicSerLCD::createChar(byte location, byte charmap[]) {
   endTransmission();
   delay(50);  //This takes a bit longer
 }
+
 /*
  * Write a customer character to the display
  *
@@ -345,7 +356,8 @@ size_t QwiicSerLCD::write(uint8_t b) {
   endTransmission(); //Stop transmission
   delay(10); // wait a bit
  } // write
-/*
+
+ /*
  * Write a character buffer to the display.
  * Required for Print.
  */
@@ -360,6 +372,7 @@ size_t QwiicSerLCD::write(const uint8_t *buffer, size_t size) {
   delay(10); //
   return n;
 } //write
+
 /*
  * Write a string to the display.
  * Required for Print.
@@ -384,6 +397,7 @@ void QwiicSerLCD::display() {
   _displayControl |= LCD_DISPLAYON;
   specialCommand(LCD_DISPLAYCONTROL | _displayControl);
  } // display
+ 
  /*
   * Turn the underline cursor off.
   */
@@ -484,8 +498,6 @@ void QwiicSerLCD::moveCursorRight(byte count) {
   specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVERIGHT, count);
 } // moveCursorRight
 
-
-
 /*
  * Use a standard hex rgb value (0x00000000 to 0x00FFFFFF) to set
  * the backlight color.
@@ -515,7 +527,6 @@ void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
   byte green = 158 + map(g, 0, 255, 0, 29);
   byte blue  = 188 + map(b, 0, 255, 0, 29);
 
-
   //send commands to the display to set backlights
   beginTransmission(); // transmit to device
 
@@ -539,6 +550,7 @@ void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
   endTransmission(); //Stop transmission
   delay(50); //This one is a bit slow
 } // setBacklight
+
 /* New backlight function
 void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
 
@@ -553,6 +565,7 @@ void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
   delay(10);
  } // setBacklight
 */
+
 /*
  * Set the text to flow from left to right.  This is the direction
  * that is common to most Western languages.
@@ -578,6 +591,7 @@ void QwiicSerLCD::autoscroll() {
   _displayMode |= LCD_ENTRYSHIFTINCREMENT;
   specialCommand(LCD_ENTRYMODESET | _displayMode);
 } //autoscroll
+
 /*
  * Turn autoscrolling off.
  */
@@ -620,7 +634,6 @@ void QwiicSerLCD::setAddress(byte new_addr) {
 
   //Update our own address so we can still talk to the display
   _i2cAddr = new_addr;
-
 
   delay(50); //This may take awhile
 } //setContrast
