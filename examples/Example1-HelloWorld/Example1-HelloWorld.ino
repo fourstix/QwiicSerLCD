@@ -43,19 +43,16 @@ QwiicSerLCD lcd; // initialize the library with default i2c address 0x72
 
 void setup() {
   Wire.begin();
-  Wire.setClock(400000); //Optional - set I2C SCL to High Speed Mode of 400kHz
 
-  // set up the LCD for I2C
-  lcd.begin(Wire);
-  // Print a message to the LCD.
+  lcd.begin(Wire); //Set up the LCD for I2C
   lcd.print("Hello, World!");
 }
 
 void loop() {
-  // set the cursor to column 0, line 1
+  // Set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
   lcd.setCursor(0, 1);
-  // print the number of seconds since reset:
+  // Print the number of seconds since reset:
   lcd.print(millis() / 1000);
 }
 
