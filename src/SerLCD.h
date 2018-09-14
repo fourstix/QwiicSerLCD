@@ -48,11 +48,11 @@
 #define LCD_MOVERIGHT   0x04
 #define LCD_MOVELEFT    0x00
 
-class QwiicSerLCD : public Print {
+class SerLCD : public Print {
 
 public:
-	QwiicSerLCD();
-	~QwiicSerLCD();
+	SerLCD();
+	~SerLCD();
 	void begin(TwoWire &wirePort);
 	void begin(TwoWire &wirePort, byte i2c_addr);
 	void begin(Stream &serial);

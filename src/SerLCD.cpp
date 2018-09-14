@@ -82,18 +82,18 @@
 #include "QwiicSerLCD.h"
 
 //<<constructor>> setup using defaults
-QwiicSerLCD::QwiicSerLCD(){
+SerLCD::QwiicSerLCD(){
 }
 
 //<<destructor>>
-QwiicSerLCD::~QwiicSerLCD(){/*nothing to destruct*/}
+SerLCD::~QwiicSerLCD(){/*nothing to destruct*/}
 
 /*
  * Set up the i2c communication with the SerLCD.
  * wirePort - TwoWire port
  * ic2_addr - I2C address
  */
-void QwiicSerLCD::begin(TwoWire &wirePort, byte i2c_addr) {
+void SerLCD::begin(TwoWire &wirePort, byte i2c_addr) {
   _i2cAddr 		= i2c_addr;
 
   begin(wirePort);
@@ -102,7 +102,7 @@ void QwiicSerLCD::begin(TwoWire &wirePort, byte i2c_addr) {
 /*
  * Set up the i2c communication with the SerLCD.
  */
-void QwiicSerLCD::begin(TwoWire &wirePort) {
+void SerLCD::begin(TwoWire &wirePort) {
   _i2cPort = &wirePort; //Grab which port the user wants us to use
   _serialPort = NULL; //Set to null to be safe
   _spiPort = NULL;    //Set to null to be safe
@@ -118,7 +118,7 @@ void QwiicSerLCD::begin(TwoWire &wirePort) {
 /*
  * Set up the serial communication with the SerLCD.
  */
-void QwiicSerLCD::begin(Stream &serialPort) {
+void SerLCD::begin(Stream &serialPort) {
   _serialPort = &serialPort; //Grab which port the user wants us to use
   _i2cPort = NULL; //Set to null to be safe
   _spiPort = NULL; //Set to null to be safe
@@ -136,7 +136,7 @@ void QwiicSerLCD::begin(Stream &serialPort) {
  * transactions create the settings object in the function call, and that only
  * works if the function passes the object by value.
  */
-void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin, SPISettings spiSettings) {
+void SerLCD::begin(SPIClass &spiPort, byte csPin, SPISettings spiSettings) {
   _spiSettings = spiSettings;
   _spiTransaction = true;
 
@@ -147,7 +147,7 @@ void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin, SPISettings spiSettings) 
 /*
  * Set up the SPI communication with the SerLCD.
  */
-void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin) {
+void SerLCD::begin(SPIClass &spiPort, byte csPin) {
   _csPin = csPin;
 
   pinMode(csPin, OUTPUT);  //set pin to output, in case user forgot
@@ -167,7 +167,7 @@ void QwiicSerLCD::begin(SPIClass &spiPort, byte csPin) {
 /*
  * Begin transmission to the device
  */
-void QwiicSerLCD::beginTransmission() {
+void SerLCD::beginTransmission() {
 	//do nothing if using serialPort
 	if (_i2cPort) {
 		_i2cPort->beginTransmission(_i2cAddr); // transmit to device
@@ -187,7 +187,7 @@ void QwiicSerLCD::beginTransmission() {
  *
  * data - byte to send
  */
- void QwiicSerLCD::transmit(uint8_t data) {
+ void SerLCD::transmit(uint8_t data) {
    if (_i2cPort) {
    		_i2cPort->write(data); // transmit to device
    	} else if (_serialPort){
@@ -200,7 +200,7 @@ void QwiicSerLCD::beginTransmission() {
 /*
  * Begin transmission to the device
  */
-void QwiicSerLCD::endTransmission() {
+void SerLCD::endTransmission() {
 	//do nothing if using Serial port
 	if (_i2cPort) {
 		_i2cPort->endTransmission(); // transmit to device
@@ -219,7 +219,7 @@ void QwiicSerLCD::endTransmission() {
  * Initialize the display
  *
  */
-void QwiicSerLCD::init() {
+void SerLCD::init() {
   beginTransmission();
   transmit(SPECIAL_COMMAND); //Send special command character
   transmit(LCD_DISPLAYCONTROL | _displayControl); //Send the display command
@@ -237,7 +237,7 @@ void QwiicSerLCD::init() {
   *
   * byte command to send
   */
- void QwiicSerLCD::command(byte command) {
+ void SerLCD::command(byte command) {
    beginTransmission(); // transmit to device
    transmit(SETTING_COMMAND); //Put LCD into setting mode
    transmit(command); //Send the command code
@@ -251,7 +251,7 @@ void QwiicSerLCD::init() {
  *
  * byte command to send
  */
-void QwiicSerLCD::specialCommand(byte command) {
+void SerLCD::specialCommand(byte command) {
   beginTransmission(); // transmit to device
   transmit(SPECIAL_COMMAND); //Send special command character
   transmit(command); //Send the command code
@@ -267,7 +267,7 @@ void QwiicSerLCD::specialCommand(byte command) {
  * byte command to send
  * byte count number of times to send
  */
-void QwiicSerLCD::specialCommand(byte command, byte count) {
+void SerLCD::specialCommand(byte command, byte count) {
   beginTransmission(); // transmit to device
 
   for (int i = 0; i < count; i++) {
@@ -284,7 +284,7 @@ void QwiicSerLCD::specialCommand(byte command, byte count) {
  * display and forces the cursor to return to the beginning
  * of the display.
  */
-void QwiicSerLCD::clear() {
+void SerLCD::clear() {
   command(CLEAR_COMMAND);
   delay(10);  // a little extra delay after clear
 }
@@ -294,7 +294,7 @@ void QwiicSerLCD::clear() {
  * to return to the beginning of the display, without clearing
  * the display.
  */
-void QwiicSerLCD::home() {
+void SerLCD::home() {
  specialCommand(LCD_RETURNHOME);
 }
 
@@ -306,7 +306,7 @@ void QwiicSerLCD::home() {
  *
  * returns: boolean true if cursor set.
  */
-void QwiicSerLCD::setCursor(byte col, byte row) {
+void SerLCD::setCursor(byte col, byte row) {
   int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 
   //kepp variables in bounds
@@ -322,7 +322,7 @@ void QwiicSerLCD::setCursor(byte col, byte row) {
  * byte   location - character number 0 to 7
  * byte[] charmap  - byte array for character
  */
-void QwiicSerLCD::createChar(byte location, byte charmap[]) {
+void SerLCD::createChar(byte location, byte charmap[]) {
   location &= 0x7; // we only have 8 locations 0-7
   beginTransmission();
   //Semd request to create a customer character
@@ -340,7 +340,7 @@ void QwiicSerLCD::createChar(byte location, byte charmap[]) {
  *
  * byte location - character number 0 to 7
  */
-void QwiicSerLCD::writeChar(byte location) {
+void SerLCD::writeChar(byte location) {
   location &= 0x7; // we only have 8 locations 0-7
 
   command(35 + location);
@@ -350,7 +350,7 @@ void QwiicSerLCD::writeChar(byte location) {
  * Write a byte to the display.
  * Required for Print.
  */
-size_t QwiicSerLCD::write(uint8_t b) {
+size_t SerLCD::write(uint8_t b) {
   beginTransmission(); // transmit to device
   transmit(b);
   endTransmission(); //Stop transmission
@@ -361,7 +361,7 @@ size_t QwiicSerLCD::write(uint8_t b) {
  * Write a character buffer to the display.
  * Required for Print.
  */
-size_t QwiicSerLCD::write(const uint8_t *buffer, size_t size) {
+size_t SerLCD::write(const uint8_t *buffer, size_t size) {
   size_t n = 0;
   beginTransmission(); // transmit to device
 	while (size--) {
@@ -377,7 +377,7 @@ size_t QwiicSerLCD::write(const uint8_t *buffer, size_t size) {
  * Write a string to the display.
  * Required for Print.
  */
- size_t QwiicSerLCD::write(const char *str) {
+ size_t SerLCD::write(const char *str) {
    if (str == NULL) return 0;
    return write((const uint8_t *)str, strlen(str));
 }
@@ -385,7 +385,7 @@ size_t QwiicSerLCD::write(const uint8_t *buffer, size_t size) {
  /*
   * Turn the display off quickly.
   */
- void QwiicSerLCD::noDisplay(){
+ void SerLCD::noDisplay(){
   _displayControl &= ~LCD_DISPLAYON;
   specialCommand(LCD_DISPLAYCONTROL | _displayControl);
  } // noDisplay
@@ -393,7 +393,7 @@ size_t QwiicSerLCD::write(const uint8_t *buffer, size_t size) {
 /*
  * Turn the display on quickly.
  */
-void QwiicSerLCD::display() {
+void SerLCD::display() {
   _displayControl |= LCD_DISPLAYON;
   specialCommand(LCD_DISPLAYCONTROL | _displayControl);
  } // display
@@ -401,7 +401,7 @@ void QwiicSerLCD::display() {
  /*
   * Turn the underline cursor off.
   */
- void QwiicSerLCD::noCursor(){
+ void SerLCD::noCursor(){
   _displayControl &= ~LCD_CURSORON;
   specialCommand(LCD_DISPLAYCONTROL | _displayControl);
  } // noCursor
@@ -409,7 +409,7 @@ void QwiicSerLCD::display() {
 /*
  * Turn the underline cursor on.
  */
-void QwiicSerLCD::cursor() {
+void SerLCD::cursor() {
   _displayControl |= LCD_CURSORON;
   specialCommand(LCD_DISPLAYCONTROL | _displayControl);
  } // cursor
@@ -417,7 +417,7 @@ void QwiicSerLCD::cursor() {
  /*
   * Turn the blink cursor off.
   */
- void QwiicSerLCD::noBlink(){
+ void SerLCD::noBlink(){
   _displayControl &= ~LCD_BLINKON;
   specialCommand(LCD_DISPLAYCONTROL | _displayControl);
  } // noBlink
@@ -425,7 +425,7 @@ void QwiicSerLCD::cursor() {
 /*
  * Turn the blink cursor on.
  */
-void QwiicSerLCD::blink() {
+void SerLCD::blink() {
   _displayControl |= LCD_BLINKON;
   specialCommand(LCD_DISPLAYCONTROL | _displayControl);
  } // blink
@@ -434,7 +434,7 @@ void QwiicSerLCD::blink() {
  * Scroll the display one character to the left, without
  * changing the text
  */
-void QwiicSerLCD::scrollDisplayLeft() {
+void SerLCD::scrollDisplayLeft() {
   specialCommand(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
  } // scrollDisplayLeft
 
@@ -444,7 +444,7 @@ void QwiicSerLCD::scrollDisplayLeft() {
  *
  * count byte - number of characters to scroll
  */
-void QwiicSerLCD::scrollDisplayLeft(byte count) {
+void SerLCD::scrollDisplayLeft(byte count) {
   specialCommand(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT, count);
  } // scrollDisplayLeft
 
@@ -452,7 +452,7 @@ void QwiicSerLCD::scrollDisplayLeft(byte count) {
  * Scroll the display one character to the right, without
  * changing the text
  */
-void QwiicSerLCD::scrollDisplayRight() {
+void SerLCD::scrollDisplayRight() {
   specialCommand(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
  } // scrollDisplayRight
 
@@ -462,14 +462,14 @@ void QwiicSerLCD::scrollDisplayRight() {
  *
  * count byte - number of characters to scroll
  */
-void QwiicSerLCD::scrollDisplayRight(byte count) {
+void SerLCD::scrollDisplayRight(byte count) {
   specialCommand(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT, count);
  } // scrollDisplayRight
 
 /*
  *  Move the cursor one character to the left.
  */
-void QwiicSerLCD::moveCursorLeft() {
+void SerLCD::moveCursorLeft() {
   specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVELEFT);
 } // moveCursorLeft
 
@@ -478,14 +478,14 @@ void QwiicSerLCD::moveCursorLeft() {
  *
  *  count byte - number of characters to move
  */
-void QwiicSerLCD::moveCursorLeft(byte count) {
+void SerLCD::moveCursorLeft(byte count) {
   specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVELEFT, count);
 } // moveCursorLeft
 
 /*
  *  Move the cursor one character to the right.
  */
-void QwiicSerLCD::moveCursorRight() {
+void SerLCD::moveCursorRight() {
   specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVERIGHT);
 } // moveCursorRight
 
@@ -494,7 +494,7 @@ void QwiicSerLCD::moveCursorRight() {
  *
  *  count byte - number of characters to move
  */
-void QwiicSerLCD::moveCursorRight(byte count) {
+void SerLCD::moveCursorRight(byte count) {
   specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVERIGHT, count);
 } // moveCursorRight
 
@@ -508,7 +508,7 @@ void QwiicSerLCD::moveCursorRight(byte count) {
  *
  * rgb - unsigned long hex encoded rgb value.
  */
-void QwiicSerLCD::setBacklight(unsigned long rgb) {
+void SerLCD::setBacklight(unsigned long rgb) {
   // convert from hex triplet to byte values
   byte r = (rgb >> 16) & 0x0000FF;
   byte g = (rgb >> 8) & 0x0000FF;
@@ -521,7 +521,7 @@ void QwiicSerLCD::setBacklight(unsigned long rgb) {
  * Uses a standard rgb byte triplit eg. (255, 0, 255) to
  * set the backlight color.
  */
-void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
+void SerLCD::setBacklight(byte r, byte g, byte b) {
   // map the byte value range to backlight command range
   byte red   = 128 + map(r, 0, 255, 0, 29);
   byte green = 158 + map(g, 0, 255, 0, 29);
@@ -552,7 +552,7 @@ void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
 } // setBacklight
 
 /* New backlight function
-void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
+void SerLCD::setBacklight(byte r, byte g, byte b) {
 
   //send commands to the display to set backlights
   beginTransmission(); // transmit to device
@@ -570,7 +570,7 @@ void QwiicSerLCD::setBacklight(byte r, byte g, byte b) {
  * Set the text to flow from left to right.  This is the direction
  * that is common to most Western languages.
  */
-void QwiicSerLCD::leftToRight() {
+void SerLCD::leftToRight() {
   _displayMode |= LCD_ENTRYLEFT;
   specialCommand(LCD_ENTRYMODESET | _displayMode);
 } // leftToRight
@@ -578,7 +578,7 @@ void QwiicSerLCD::leftToRight() {
 /*
  * Set the text to flow from right to left.
  */
-void QwiicSerLCD::rightToLeft() {
+void SerLCD::rightToLeft() {
   _displayMode &= ~LCD_ENTRYLEFT;
   specialCommand(LCD_ENTRYMODESET | _displayMode);
 } //rightToLeft
@@ -587,7 +587,7 @@ void QwiicSerLCD::rightToLeft() {
  * Turn autoscrolling on. This will 'right justify' text from
  * the cursor.
  */
-void QwiicSerLCD::autoscroll() {
+void SerLCD::autoscroll() {
   _displayMode |= LCD_ENTRYSHIFTINCREMENT;
   specialCommand(LCD_ENTRYMODESET | _displayMode);
 } //autoscroll
@@ -595,7 +595,7 @@ void QwiicSerLCD::autoscroll() {
 /*
  * Turn autoscrolling off.
  */
-void QwiicSerLCD::noAutoscroll() {
+void SerLCD::noAutoscroll() {
   _displayMode &= ~LCD_ENTRYSHIFTINCREMENT;
   specialCommand(LCD_ENTRYMODESET | _displayMode);
 } //noAutoscroll
@@ -605,7 +605,7 @@ void QwiicSerLCD::noAutoscroll() {
  *
  * byte new_val - new contrast value
  */
-void QwiicSerLCD::setContrast(byte new_val) {
+void SerLCD::setContrast(byte new_val) {
   //send commands to the display to set backlights
   beginTransmission(); // transmit to device
   transmit(SETTING_COMMAND); //Send contrast command
@@ -624,7 +624,7 @@ void QwiicSerLCD::setContrast(byte new_val) {
  *
  * byte new_addr - new i2c address
  */
-void QwiicSerLCD::setAddress(byte new_addr) {
+void SerLCD::setAddress(byte new_addr) {
   //send commands to the display to set backlights
   beginTransmission(); // transmit to device on old address
   transmit(SETTING_COMMAND); //Send contrast command
