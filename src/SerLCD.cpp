@@ -79,14 +79,14 @@
  * For example, to change the baud rate to 115200 send 124 followed by 18.
  *
  */
-#include "QwiicSerLCD.h"
+#include "SerLCD.h"
 
 //<<constructor>> setup using defaults
-SerLCD::QwiicSerLCD(){
+SerLCD::SerLCD(){
 }
 
 //<<destructor>>
-SerLCD::~QwiicSerLCD(){/*nothing to destruct*/}
+SerLCD::~SerLCD(){/*nothing to destruct*/}
 
 /*
  * Set up the i2c communication with the SerLCD.

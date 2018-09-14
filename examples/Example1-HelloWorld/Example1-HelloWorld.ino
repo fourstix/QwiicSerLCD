@@ -39,7 +39,7 @@
 #include <Wire.h>
 
 #include <SerLCD.h> //Click here to get the library: http://librarymanager/All#SparkFun_SerLCD
-QwiicSerLCD lcd; // initialize the library with default i2c address 0x72
+SerLCD lcd; // Initialize the library with default I2C address 0x72
 
 void setup() {
   Wire.begin();
