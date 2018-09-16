@@ -86,6 +86,8 @@ public:
 	void moveCursorRight(byte count);
 	void setBacklight(unsigned long rgb);
 	void setBacklight(byte r, byte g, byte b);
+	void setFastBacklight(unsigned long rgb);
+	void setFastBacklight(byte r, byte g, byte b);
 	void leftToRight();
 	void rightToLeft();
 	void autoscroll();

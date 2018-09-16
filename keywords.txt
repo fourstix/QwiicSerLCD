@@ -6,7 +6,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-QwiicSerLCD	KEYWORD1
+SerLCD	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -35,6 +35,7 @@ writeChar	KEYWORD2
 moveCursorLeft	KEYWORD2
 moveCursorRight	KEYWORD2
 setBacklight	KEYWORD2
+setFastBacklight	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

@@ -71,12 +71,13 @@
  * Ctrl+x / 24 / 0x18 - Change the contrast. Follow Ctrl+x with number 0 to 255. 120 is default.
  * Ctrl+y / 25 / 0x19 - Change the TWI address. Follow Ctrl+x with number 0 to 255. 114 (0x72) is default.
  * Ctrl+z / 26 / 0x1A - Enable/disable ignore RX pin on startup (ignore emergency reset)
+ * '+'    / 43 / 0x2B - Set RGB backlight with three following bytes, 0-255
+ * ','    / 44 / 0x2C - Display current firmware version
  * '-'    / 45 / 0x2D - Clear display. Move cursor to home position.
  *        / 128-157 / 0x80-0x9D - Set the primary backlight brightness. 128 = Off, 157 = 100%.
  *        / 158-187 / 0x9E-0xBB - Set the green backlight brightness. 158 = Off, 187 = 100%.
  *        / 188-217 / 0xBC-0xD9 - Set the blue backlight brightness. 188 = Off, 217 = 100%.
- *
- * For example, to change the baud rate to 115200 send 124 followed by 18.
+ *		For example, to change the baud rate to 115200 send 124 followed by 18.
  *
  */
 #include "SerLCD.h"
@@ -325,7 +326,7 @@ void SerLCD::setCursor(byte col, byte row) {
 void SerLCD::createChar(byte location, byte charmap[]) {
   location &= 0x7; // we only have 8 locations 0-7
   beginTransmission();
-  //Semd request to create a customer character
+  //Send request to create a customer character
   transmit(SETTING_COMMAND); //Put LCD into setting mode
   transmit(27 + location);
   for (int i = 0; i < 8; i++) {
@@ -551,8 +552,18 @@ void SerLCD::setBacklight(byte r, byte g, byte b) {
   delay(50); //This one is a bit slow
 } // setBacklight
 
-/* New backlight function
-void SerLCD::setBacklight(byte r, byte g, byte b) {
+// New backlight function
+void SerLCD::setFastBacklight(unsigned long rgb) {
+  // convert from hex triplet to byte values
+  byte r = (rgb >> 16) & 0x0000FF;
+  byte g = (rgb >> 8) & 0x0000FF;
+  byte b = rgb & 0x0000FF;
+
+ setFastBacklight(r, g, b);
+}
+
+//New command - set backlight with LCD messages or delays
+void SerLCD::setFastBacklight(byte r, byte g, byte b) {
 
   //send commands to the display to set backlights
   beginTransmission(); // transmit to device
@@ -563,8 +574,7 @@ void SerLCD::setBacklight(byte r, byte g, byte b) {
   transmit(b); //Send the blue value
   endTransmission(); //Stop transmission
   delay(10);
- } // setBacklight
-*/
+ } // setFastBacklight
 
 /*
  * Set the text to flow from left to right.  This is the direction
