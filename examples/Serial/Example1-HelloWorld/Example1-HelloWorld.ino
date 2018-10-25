@@ -37,9 +37,9 @@
 SerLCD lcd; // Initialize the library with default I2C address 0x72
 
 void setup() {
-  Wire.begin();
+  Serial.begin(9600);
 
-  lcd.begin(Wire); //Set up the LCD for I2C communication
+  lcd.begin(Serial); //Set up the LCD for Serial communication at 9600bps
   lcd.print("Hello, World!");
 }
 
