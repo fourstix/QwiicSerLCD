@@ -40,7 +40,7 @@ void setup() {
 
 void loop() {
   lcd.setBacklight(0, 0, 0); //black is off
-  lcd.clear();
+  lcd.clear(); //Clear the display - this moves the cursor to home position as well
   lcd.print("Black (off)");
   delay(3000);
   

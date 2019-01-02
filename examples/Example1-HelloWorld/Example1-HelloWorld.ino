@@ -40,6 +40,8 @@ void setup() {
   Wire.begin();
 
   lcd.begin(Wire); //Set up the LCD for I2C communication
+
+  lcd.clear(); //Clear the display - this moves the cursor to home position as well
   lcd.print("Hello, World!");
 }
 
@@ -50,4 +52,3 @@ void loop() {
   // Print the number of seconds since reset:
   lcd.print(millis() / 1000);
 }
-
