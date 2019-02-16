@@ -74,7 +74,10 @@
  * '+'    / 43 / 0x2B - Set RGB backlight with three following bytes, 0-255
  * ','    / 44 / 0x2C - Display current firmware version
  * '-'    / 45 / 0x2D - Clear display. Move cursor to home position.
- * '.'    / 46 / 0x2D - Enable/disable system messages (ie, don't display 'Contrast: 5' when changed)
+ * '.'    / 46 / 0x2E - Enable system messages (ie, display 'Contrast: 5' when changed)
+ * '/'    / 47 / 0x2F - Disable system messages (ie, don't display 'Contrast: 5' when changed)
+ * '0'    / 48 / 0x30 - Enable splash screen
+ * '1'    / 49 / 0x31 - Disable splash screen
  *        / 128-157 / 0x80-0x9D - Set the primary backlight brightness. 128 = Off, 157 = 100%.
  *        / 158-187 / 0x9E-0xBB - Set the green backlight brightness. 158 = Off, 187 = 100%.
  *        / 188-217 / 0xBC-0xD9 - Set the blue backlight brightness. 188 = Off, 217 = 100%.
@@ -623,7 +626,6 @@ void SerLCD::setFastBacklight(unsigned long rgb)
 //New command - set backlight with LCD messages or delays
 void SerLCD::setFastBacklight(byte r, byte g, byte b)
 {
-
   //send commands to the display to set backlights
   beginTransmission();       // transmit to device
   transmit(SETTING_COMMAND); //Send special command character
@@ -634,6 +636,60 @@ void SerLCD::setFastBacklight(byte r, byte g, byte b)
   endTransmission();         //Stop transmission
   delay(10);
 } // setFastBacklight
+
+//Enable system messages
+//This allows user to see printing messages like 'UART: 57600' and 'Contrast: 5'
+void SerLCD::enableSystemMessages()
+{
+  beginTransmission();                     // transmit to device
+  transmit(SETTING_COMMAND);               //Send special command character
+  transmit(ENABLE_SYSTEM_MESSAGE_DISPLAY); //Send the set '.' character
+  endTransmission();                       //Stop transmission
+  delay(10);
+}
+
+//Disable system messages
+//This allows user to disable printing messages like 'UART: 57600' and 'Contrast: 5'
+void SerLCD::disableSystemMessages()
+{
+  beginTransmission();                      // transmit to device
+  transmit(SETTING_COMMAND);                //Send special command character
+  transmit(DISABLE_SYSTEM_MESSAGE_DISPLAY); //Send the set '.' character
+  endTransmission();                        //Stop transmission
+  delay(10);
+}
+
+//Enable splash screen at power on
+void SerLCD::enableSplash()
+{
+  beginTransmission();             // transmit to device
+  transmit(SETTING_COMMAND);       //Send special command character
+  transmit(ENABLE_SPLASH_DISPLAY); //Send the set '.' character
+  endTransmission();               //Stop transmission
+  delay(10);
+}
+
+//Disable splash screen at power on
+void SerLCD::disableSplash()
+{
+  beginTransmission();              // transmit to device
+  transmit(SETTING_COMMAND);        //Send special command character
+  transmit(DISABLE_SPLASH_DISPLAY); //Send the set '.' character
+  endTransmission();                //Stop transmission
+  delay(10);
+}
+
+//Save the current display as the splash
+void SerLCD::saveSplash()
+{
+  //Save whatever is currently being displayed into EEPROM
+  //This will be displayed at next power on as the splash screen
+  beginTransmission();                      // transmit to device
+  transmit(SETTING_COMMAND);                //Send special command character
+  transmit(SAVE_CURRENT_DISPLAY_AS_SPLASH); //Send the set Ctrl+j character
+  endTransmission();                        //Stop transmission
+  delay(10);
+}
 
 /*
  * Set the text to flow from left to right.  This is the direction
