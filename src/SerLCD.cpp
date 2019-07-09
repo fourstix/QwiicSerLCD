@@ -117,10 +117,6 @@ void SerLCD::begin(TwoWire &wirePort)
   _serialPort = NULL;   //Set to null to be safe
   _spiPort = NULL;      //Set to null to be safe
 
-  //We expect caller to begin their I2C port, with the speed of their choice external to the library
-  //But if they forget, we start the hardware here.
-  _i2cPort->begin();
-
   //Call init function since display may have been left in unknown state
   init();
 } // begin
