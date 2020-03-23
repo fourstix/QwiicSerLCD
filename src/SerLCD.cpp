@@ -4,6 +4,7 @@
  *
  * By: Gaston R. Williams
  * Date: August 22, 2018
+ * Update: March 23, 2020 - fixed missing return value in write(uint8_t)
  *
  * License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
  *
@@ -392,6 +393,7 @@ size_t SerLCD::write(uint8_t b)
   transmit(b);
   endTransmission(); //Stop transmission
   delay(10);         // wait a bit
+  return 1;
 } // write
 
 /*
