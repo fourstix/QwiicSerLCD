@@ -344,8 +344,9 @@ void SerLCD::setCursor(byte col, byte row)
   int row_offsets[] = {0x00, 0x40, 0x14, 0x54};
 
   //kepp variables in bounds
-  row = max(0, row);            //row cannot be less than 0
-  row = min(row, MAX_ROWS - 1); //row cannot be greater than max rows
+  //Explicitly cast numeric literals to type byte to avoid ESP32 and ESP8266 compile errors
+  row = max((byte) 0, row);            //row cannot be less than 0
+  row = min(row, (byte)(MAX_ROWS - 1)); //row cannot be greater than max rows
 
   //send the command
   specialCommand(LCD_SETDDRAMADDR | (col + row_offsets[row]));
