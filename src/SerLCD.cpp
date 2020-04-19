@@ -337,7 +337,6 @@ void SerLCD::home()
  * column - byte 0 to 19
  * row - byte 0 to 3
  *
- * returns: boolean true if cursor set.
  */
 void SerLCD::setCursor(byte col, byte row)
 {
