@@ -39,11 +39,11 @@ setContrast	KEYWORD2
 setAddress	KEYWORD2
 command	KEYWORD2
 specialCommand	KEYWORD2
-enableSystemMessages    KEYWORD2
-disableSystemMessages    KEYWORD2
-enableSplash    KEYWORD2
-disableSplash    KEYWORD2
-saveSplash    KEYWORD2
+enableSystemMessages	KEYWORD2
+disableSystemMessages	KEYWORD2
+enableSplash	KEYWORD2
+disableSplash	KEYWORD2
+saveSplash	KEYWORD2
 
 
 #######################################
