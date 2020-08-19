@@ -108,6 +108,7 @@ class SerLCD : public Print
 	void enableSplash();
 	void disableSplash();
 	void saveSplash();
+	byte getAddress();
 
   private:
 	TwoWire *_i2cPort = NULL;   //The generic connection to user's chosen I2C hardware

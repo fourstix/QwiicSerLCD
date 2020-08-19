@@ -765,4 +765,14 @@ void SerLCD::setAddress(byte new_addr)
   _i2cAddr = new_addr;
 
   delay(50); //This may take awhile
-} //setContrast
+} //setAddress
+
+/*
+ * getAddress
+ * 
+ * Returns private variable I2C address
+ */
+byte SerLCD::getAddress()
+{
+  return _i2cAddr;
+} //getAddress
