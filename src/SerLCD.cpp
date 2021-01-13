@@ -249,9 +249,9 @@ void SerLCD::init()
 {
   beginTransmission();
   transmit(SPECIAL_COMMAND);                      //Send special command character
-  transmit(LCD_DISPLAYCONTROL | _displayControl); //Send the display command
+  transmit(DISPLAY_CTRL_BIT | _displayControl); //Send the display command
   transmit(SPECIAL_COMMAND);                      //Send special command character
-  transmit(LCD_ENTRYMODESET | _displayMode);      //Send the entry mode command
+  transmit(DISPLAY_MODE_BIT | _displayMode);      //Send the entry mode command
   transmit(SETTING_COMMAND);                      //Put LCD into setting mode
   transmit(CLEAR_COMMAND);                        //Send clear display command
   endTransmission();                              //Stop transmission
@@ -328,7 +328,7 @@ void SerLCD::clear()
  */
 void SerLCD::home()
 {
-  specialCommand(LCD_RETURNHOME);
+  specialCommand(SET_DDRAM_HOME);
 }
 
 /*
@@ -348,7 +348,7 @@ void SerLCD::setCursor(byte col, byte row)
   row = min(row, (byte)(MAX_ROWS - 1)); //row cannot be greater than max rows
 
   //send the command
-  specialCommand(LCD_SETDDRAMADDR | (col + row_offsets[row]));
+  specialCommand(SET_DDRAM_ADDRESS | (col + row_offsets[row]));
 } // setCursor
 
 /*
@@ -430,8 +430,8 @@ size_t SerLCD::write(const char *str)
   */
 void SerLCD::noDisplay()
 {
-  _displayControl &= ~LCD_DISPLAYON;
-  specialCommand(LCD_DISPLAYCONTROL | _displayControl);
+  _displayControl &= ~DISPLAY_BIT;  //clear display bit
+  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
 } // noDisplay
 
 /*
@@ -439,8 +439,8 @@ void SerLCD::noDisplay()
  */
 void SerLCD::display()
 {
-  _displayControl |= LCD_DISPLAYON;
-  specialCommand(LCD_DISPLAYCONTROL | _displayControl);
+  _displayControl |= DISPLAY_BIT; //set display bit
+  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
 } // display
 
 /*
@@ -448,8 +448,8 @@ void SerLCD::display()
   */
 void SerLCD::noCursor()
 {
-  _displayControl &= ~LCD_CURSORON;
-  specialCommand(LCD_DISPLAYCONTROL | _displayControl);
+  _displayControl &= ~CURSOR_BIT;  //clear cursor bit
+  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
 } // noCursor
 
 /*
@@ -457,8 +457,8 @@ void SerLCD::noCursor()
  */
 void SerLCD::cursor()
 {
-  _displayControl |= LCD_CURSORON;
-  specialCommand(LCD_DISPLAYCONTROL | _displayControl);
+  _displayControl |= CURSOR_BIT;  //set cursor bit
+  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
 } // cursor
 
 /*
@@ -466,8 +466,8 @@ void SerLCD::cursor()
   */
 void SerLCD::noBlink()
 {
-  _displayControl &= ~LCD_BLINKON;
-  specialCommand(LCD_DISPLAYCONTROL | _displayControl);
+  _displayControl &= ~BLINK_BIT; //clear blink bit
+  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
 } // noBlink
 
 /*
@@ -475,8 +475,8 @@ void SerLCD::noBlink()
  */
 void SerLCD::blink()
 {
-  _displayControl |= LCD_BLINKON;
-  specialCommand(LCD_DISPLAYCONTROL | _displayControl);
+  _displayControl |= BLINK_BIT;  //set blink bit
+  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
 } // blink
 
 /*
@@ -485,7 +485,7 @@ void SerLCD::blink()
  */
 void SerLCD::scrollDisplayLeft()
 {
-  specialCommand(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
+  specialCommand(SHIFT_CURSOR_BIT | SHIFT_DISPLAY_BIT);
 } // scrollDisplayLeft
 
 /*
@@ -496,7 +496,7 @@ void SerLCD::scrollDisplayLeft()
  */
 void SerLCD::scrollDisplayLeft(byte count)
 {
-  specialCommand(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT, count);
+  specialCommand(SHIFT_CURSOR_BIT | SHIFT_DISPLAY_BIT, count);
 } // scrollDisplayLeft
 
 /*
@@ -505,7 +505,7 @@ void SerLCD::scrollDisplayLeft(byte count)
  */
 void SerLCD::scrollDisplayRight()
 {
-  specialCommand(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
+  specialCommand(SHIFT_CURSOR_BIT | SHIFT_DISPLAY_BIT | SHIFT_RIGHT_BIT);
 } // scrollDisplayRight
 
 /*
@@ -516,7 +516,7 @@ void SerLCD::scrollDisplayRight()
  */
 void SerLCD::scrollDisplayRight(byte count)
 {
-  specialCommand(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT, count);
+  specialCommand(SHIFT_CURSOR_BIT | SHIFT_DISPLAY_BIT | SHIFT_RIGHT_BIT, count);
 } // scrollDisplayRight
 
 /*
@@ -524,7 +524,7 @@ void SerLCD::scrollDisplayRight(byte count)
  */
 void SerLCD::moveCursorLeft()
 {
-  specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVELEFT);
+  specialCommand(SHIFT_CURSOR_BIT);
 } // moveCursorLeft
 
 /*
@@ -534,7 +534,7 @@ void SerLCD::moveCursorLeft()
  */
 void SerLCD::moveCursorLeft(byte count)
 {
-  specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVELEFT, count);
+  specialCommand(SHIFT_CURSOR_BIT, count);
 } // moveCursorLeft
 
 /*
@@ -542,7 +542,7 @@ void SerLCD::moveCursorLeft(byte count)
  */
 void SerLCD::moveCursorRight()
 {
-  specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVERIGHT);
+  specialCommand(SHIFT_CURSOR_BIT | SHIFT_RIGHT_BIT);
 } // moveCursorRight
 
 /*
@@ -552,7 +552,7 @@ void SerLCD::moveCursorRight()
  */
 void SerLCD::moveCursorRight(byte count)
 {
-  specialCommand(LCD_CURSORSHIFT | LCD_CURSORMOVE | LCD_MOVERIGHT, count);
+  specialCommand(SHIFT_CURSOR_BIT | SHIFT_RIGHT_BIT, count);
 } // moveCursorRight
 
 /*
@@ -590,9 +590,9 @@ void SerLCD::setBacklight(byte r, byte g, byte b)
   beginTransmission(); // transmit to device
 
   //Turn display off to hide confirmation messages
-  _displayControl &= ~LCD_DISPLAYON;
+  _displayControl &= ~DISPLAY_BIT;  //clear display bit
   transmit(SPECIAL_COMMAND); //Send special command character
-  transmit(LCD_DISPLAYCONTROL | _displayControl);
+  transmit(DISPLAY_CTRL_BIT | _displayControl);
 
   //Set the red, green and blue values
   transmit(SETTING_COMMAND); //Set red backlight amount
@@ -603,9 +603,9 @@ void SerLCD::setBacklight(byte r, byte g, byte b)
   transmit(blue);
 
   //Turn display back on and end
-  _displayControl |= LCD_DISPLAYON;
+  _displayControl |= DISPLAY_BIT;                 //set display bit
   transmit(SPECIAL_COMMAND);                      //Send special command character
-  transmit(LCD_DISPLAYCONTROL | _displayControl); //Turn display on as before
+  transmit(DISPLAY_CTRL_BIT | _displayControl); //Turn display on as before
   endTransmission();                              //Stop transmission
   delay(50);                                      //This one is a bit slow
 } // setBacklight
@@ -695,8 +695,8 @@ void SerLCD::saveSplash()
  */
 void SerLCD::leftToRight()
 {
-  _displayMode |= LCD_ENTRYLEFT;
-  specialCommand(LCD_ENTRYMODESET | _displayMode);
+  _displayMode |= LEFT_TO_RIGHT_BIT;  //set left to right bit
+  specialCommand(DISPLAY_MODE_BIT | _displayMode);
 } // leftToRight
 
 /*
@@ -704,8 +704,8 @@ void SerLCD::leftToRight()
  */
 void SerLCD::rightToLeft()
 {
-  _displayMode &= ~LCD_ENTRYLEFT;
-  specialCommand(LCD_ENTRYMODESET | _displayMode);
+  _displayMode &= ~LEFT_TO_RIGHT_BIT; //clear left to right bit
+  specialCommand(DISPLAY_MODE_BIT | _displayMode);
 } //rightToLeft
 
 /*
@@ -714,8 +714,8 @@ void SerLCD::rightToLeft()
  */
 void SerLCD::autoscroll()
 {
-  _displayMode |= LCD_ENTRYSHIFTINCREMENT;
-  specialCommand(LCD_ENTRYMODESET | _displayMode);
+  _displayMode |= SCROLL_BIT;  //set scroll bit
+  specialCommand(DISPLAY_MODE_BIT | _displayMode);
 } //autoscroll
 
 /*
@@ -723,8 +723,8 @@ void SerLCD::autoscroll()
  */
 void SerLCD::noAutoscroll()
 {
-  _displayMode &= ~LCD_ENTRYSHIFTINCREMENT;
-  specialCommand(LCD_ENTRYMODESET | _displayMode);
+  _displayMode &= ~SCROLL_BIT;  //clear scroll bit
+  specialCommand(DISPLAY_MODE_BIT | _displayMode);
 } //noAutoscroll
 
 /*
