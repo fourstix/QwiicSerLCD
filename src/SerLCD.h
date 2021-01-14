@@ -30,10 +30,13 @@
 #define SAVE_CURRENT_DISPLAY_AS_SPLASH 0x0A //10, Ctrl+j, command to save current text on display as splash
 
 /*
- * Hitachi HD44780 Display DDRAM Commands
+ * Hitachi HD44780 Commands
+ * See Hitachi HD44780 Datasheet, Table 6, pages 24-25
  */
-#define SET_DDRAM_HOME    0x02
+#define RETURN_HOME       0x02
 #define SET_DDRAM_ADDRESS 0x80
+#define SET_ENTRY_MODE    0x04
+#define SET_DISPLAY       0x08
 
 /*
  * Hitachi HD44780 Display Mode Bits
@@ -45,7 +48,7 @@
 /*
  * Hitachi HD44780 Display Control Bits
  */
-#define DISPLAY_CTRL_BIT 0x08
+//#define DISPLAY_CTRL_BIT 0x08
 #define DISPLAY_BIT      0x04
 #define CURSOR_BIT       0x02
 #define BLINK_BIT        0x01
@@ -130,8 +133,8 @@ class SerLCD : public Print
 #endif
 	byte _csPin = 10;
 	byte _i2cAddr = DISPLAY_ADDRESS1;
-	byte _displayControl = DISPLAY_BIT;  //display on, blink off, cursor off
-	byte _displayMode = LEFT_TO_RIGHT_BIT;  //left to right, no scrolling
+	byte _display = SET_DISPLAY | DISPLAY_ON_BIT;  //display on, blink off, cursor off
+	byte _entryMode = SET_ENTRY_MODE | LEFT_TO_RIGHT_BIT;  //left to right, no scrolling
 	void init();
 	void beginTransmission();
 	void transmit(byte data);

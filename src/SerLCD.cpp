@@ -8,13 +8,7 @@
  *
  * License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
  *
- * This library is based heavily on the LiquidCrystal_I2C library and the sample code provided with
- * the SparkFun Serial OpenLCD display.  The original LiquidCrystal library by David A. Mellis and
- * modified by Limor Fried and the OpenLCD code by Nathan Seidle at SparkFun.
- *
- * The LiquidCrystal_I2C library was based on the work by DFRobot.
- * (That's the only attribution I found in the code I have. If anyone can provide better information,
- * Plese let me know and I'll be happy to give credit where credit is due.)
+ * TODO:  Add references to API and Hitachi data sheet
  *
  * Original information copied from OpenLCD:
  *
@@ -249,9 +243,9 @@ void SerLCD::init()
 {
   beginTransmission();
   transmit(SPECIAL_COMMAND);                      //Send special command character
-  transmit(DISPLAY_CTRL_BIT | _displayControl); //Send the display command
+  transmit(_display); //Send the display command
   transmit(SPECIAL_COMMAND);                      //Send special command character
-  transmit(DISPLAY_MODE_BIT | _displayMode);      //Send the entry mode command
+  transmit(_entryMode);      //Send the entry mode command
   transmit(SETTING_COMMAND);                      //Put LCD into setting mode
   transmit(CLEAR_COMMAND);                        //Send clear display command
   endTransmission();                              //Stop transmission
@@ -328,7 +322,7 @@ void SerLCD::clear()
  */
 void SerLCD::home()
 {
-  specialCommand(SET_DDRAM_HOME);
+  specialCommand(RETURN_HOME);
 }
 
 /*
@@ -430,8 +424,8 @@ size_t SerLCD::write(const char *str)
   */
 void SerLCD::noDisplay()
 {
-  _displayControl &= ~DISPLAY_BIT;  //clear display bit
-  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
+  _display &= ~DISPLAY_BIT;  //clear display bit
+  specialCommand(_display);
 } // noDisplay
 
 /*
@@ -439,8 +433,8 @@ void SerLCD::noDisplay()
  */
 void SerLCD::display()
 {
-  _displayControl |= DISPLAY_BIT; //set display bit
-  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
+  _display |= DISPLAY_BIT; //set display bit
+  specialCommand(_display);
 } // display
 
 /*
@@ -448,8 +442,8 @@ void SerLCD::display()
   */
 void SerLCD::noCursor()
 {
-  _displayControl &= ~CURSOR_BIT;  //clear cursor bit
-  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
+  _display &= ~CURSOR_BIT;  //clear cursor bit
+  specialCommand(_display);
 } // noCursor
 
 /*
@@ -457,8 +451,8 @@ void SerLCD::noCursor()
  */
 void SerLCD::cursor()
 {
-  _displayControl |= CURSOR_BIT;  //set cursor bit
-  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
+  _display |= CURSOR_BIT;  //set cursor bit
+  specialCommand(_display);
 } // cursor
 
 /*
@@ -466,8 +460,8 @@ void SerLCD::cursor()
   */
 void SerLCD::noBlink()
 {
-  _displayControl &= ~BLINK_BIT; //clear blink bit
-  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
+  _display &= ~BLINK_BIT; //clear blink bit
+  specialCommand(_display);
 } // noBlink
 
 /*
@@ -475,8 +469,8 @@ void SerLCD::noBlink()
  */
 void SerLCD::blink()
 {
-  _displayControl |= BLINK_BIT;  //set blink bit
-  specialCommand(DISPLAY_CTRL_BIT | _displayControl);
+  _display |= BLINK_BIT;  //set blink bit
+  specialCommand(_display);
 } // blink
 
 /*
@@ -590,9 +584,9 @@ void SerLCD::setBacklight(byte r, byte g, byte b)
   beginTransmission(); // transmit to device
 
   //Turn display off to hide confirmation messages
-  _displayControl &= ~DISPLAY_BIT;  //clear display bit
+  _display &= ~DISPLAY_BIT;  //clear display bit
   transmit(SPECIAL_COMMAND); //Send special command character
-  transmit(DISPLAY_CTRL_BIT | _displayControl);
+  transmit(_display);
 
   //Set the red, green and blue values
   transmit(SETTING_COMMAND); //Set red backlight amount
@@ -603,9 +597,9 @@ void SerLCD::setBacklight(byte r, byte g, byte b)
   transmit(blue);
 
   //Turn display back on and end
-  _displayControl |= DISPLAY_BIT;                 //set display bit
+  _display |= DISPLAY_BIT;                 //set display bit
   transmit(SPECIAL_COMMAND);                      //Send special command character
-  transmit(DISPLAY_CTRL_BIT | _displayControl); //Turn display on as before
+  transmit(_display); //Turn display on as before
   endTransmission();                              //Stop transmission
   delay(50);                                      //This one is a bit slow
 } // setBacklight
@@ -695,8 +689,8 @@ void SerLCD::saveSplash()
  */
 void SerLCD::leftToRight()
 {
-  _displayMode |= LEFT_TO_RIGHT_BIT;  //set left to right bit
-  specialCommand(DISPLAY_MODE_BIT | _displayMode);
+  _entryMode |= LEFT_TO_RIGHT_BIT;  //set left to right bit
+  specialCommand(_entryMode);
 } // leftToRight
 
 /*
@@ -704,8 +698,8 @@ void SerLCD::leftToRight()
  */
 void SerLCD::rightToLeft()
 {
-  _displayMode &= ~LEFT_TO_RIGHT_BIT; //clear left to right bit
-  specialCommand(DISPLAY_MODE_BIT | _displayMode);
+  _entryMode &= ~LEFT_TO_RIGHT_BIT; //clear left to right bit
+  specialCommand(_entryMode);
 } //rightToLeft
 
 /*
@@ -714,8 +708,8 @@ void SerLCD::rightToLeft()
  */
 void SerLCD::autoscroll()
 {
-  _displayMode |= SCROLL_BIT;  //set scroll bit
-  specialCommand(DISPLAY_MODE_BIT | _displayMode);
+  _entryMode |= SCROLL_BIT;  //set scroll bit
+  specialCommand(_entryMode);
 } //autoscroll
 
 /*
@@ -723,8 +717,8 @@ void SerLCD::autoscroll()
  */
 void SerLCD::noAutoscroll()
 {
-  _displayMode &= ~SCROLL_BIT;  //clear scroll bit
-  specialCommand(DISPLAY_MODE_BIT | _displayMode);
+  _entryMode &= ~SCROLL_BIT;  //clear scroll bit
+  specialCommand(_entryMode);
 } //noAutoscroll
 
 /*
