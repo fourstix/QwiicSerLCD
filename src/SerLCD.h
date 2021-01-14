@@ -31,34 +31,33 @@
 
 /*
  * Hitachi HD44780 Commands
- * See Hitachi HD44780 Datasheet, Table 6, pages 24-25
+ * See Hitachi HD44780 Datasheet, Table 6 Instrucions, page 24
  */
-#define RETURN_HOME       0x02
-#define SET_DDRAM_ADDRESS 0x80
-#define SET_ENTRY_MODE    0x04
-#define SET_DISPLAY       0x08
-
+#define RETURN_HOME_CMD   0x02
+#define ENTRY_MODE_CMD    0x04
+#define DISPLAY_CMD       0x08
+#define DDRAM_ADDRESS_CMD 0x80
+#define SHIFT_CMD         0x10
 /*
  * Hitachi HD44780 Display Mode Bits
- * See Hitachi HD44780 Datasheet, Table 6, page 24
+ * See Hitachi HD44780 Datasheet, Table 6 Instructions, page 24
  */
-#define DISPLAY_MODE_BIT   0x04
 #define LEFT_TO_RIGHT_BIT  0x02
 #define SCROLL_BIT         0x01
 
 /*
  * Hitachi HD44780 Display Control Bits
- * See Hitachi HD44780 Datasheet, Table 6, page 24
+ * See Hitachi HD44780 Datasheet, Table 6 Instructions, page 24
  */
 //#define DISPLAY_CTRL_BIT 0x08
 #define DISPLAY_ON_BIT      0x04
-#define CURSOR_BIT       0x02
-#define BLINK_BIT        0x01
+#define CURSOR_ON_BIT       0x02
+#define BLINK_ON_BIT        0x01
 
 /*
  * Hitachi HD44780 Display Shift Bits
  */
-#define SHIFT_CURSOR_BIT  0x10
+//#define SHIFT_CURSOR_BIT  0x10
 #define SHIFT_DISPLAY_BIT 0x08
 #define SHIFT_RIGHT_BIT   0x04
 
@@ -135,8 +134,9 @@ class SerLCD : public Print
 #endif
 	byte _csPin = 10;
 	byte _i2cAddr = DISPLAY_ADDRESS1;
-	byte _display = SET_DISPLAY | DISPLAY_ON_BIT;  //display on, blink off, cursor off
-	byte _entryMode = SET_ENTRY_MODE | LEFT_TO_RIGHT_BIT;  //left to right, no scrolling
+	byte _displayCmd = DISPLAY_CMD | DISPLAY_ON_BIT;  //display on, blink off, cursor off
+	byte _entryModeCmd = ENTRY_MODE_CMD | LEFT_TO_RIGHT_BIT;  //left to right, no scrolling
+  byte _shiftCmd = SHIFT_CMD; //shift cursor, left
 	void init();
 	void beginTransmission();
 	void transmit(byte data);
