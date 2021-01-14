@@ -40,6 +40,7 @@
 
 /*
  * Hitachi HD44780 Display Mode Bits
+ * See Hitachi HD44780 Datasheet, Table 6, page 24
  */
 #define DISPLAY_MODE_BIT   0x04
 #define LEFT_TO_RIGHT_BIT  0x02
@@ -47,9 +48,10 @@
 
 /*
  * Hitachi HD44780 Display Control Bits
+ * See Hitachi HD44780 Datasheet, Table 6, page 24
  */
 //#define DISPLAY_CTRL_BIT 0x08
-#define DISPLAY_BIT      0x04
+#define DISPLAY_ON_BIT      0x04
 #define CURSOR_BIT       0x02
 #define BLINK_BIT        0x01
 

@@ -424,7 +424,7 @@ size_t SerLCD::write(const char *str)
   */
 void SerLCD::noDisplay()
 {
-  _display &= ~DISPLAY_BIT;  //clear display bit
+  _display &= ~DISPLAY_ON_BIT;  //clear display bit
   specialCommand(_display);
 } // noDisplay
 
@@ -433,7 +433,7 @@ void SerLCD::noDisplay()
  */
 void SerLCD::display()
 {
-  _display |= DISPLAY_BIT; //set display bit
+  _display |= DISPLAY_ON_BIT; //set display bit
   specialCommand(_display);
 } // display
 
@@ -584,7 +584,7 @@ void SerLCD::setBacklight(byte r, byte g, byte b)
   beginTransmission(); // transmit to device
 
   //Turn display off to hide confirmation messages
-  _display &= ~DISPLAY_BIT;  //clear display bit
+  _display &= ~DISPLAY_ON_BIT;  //clear display bit
   transmit(SPECIAL_COMMAND); //Send special command character
   transmit(_display);
 
@@ -597,7 +597,7 @@ void SerLCD::setBacklight(byte r, byte g, byte b)
   transmit(blue);
 
   //Turn display back on and end
-  _display |= DISPLAY_BIT;                 //set display bit
+  _display |= DISPLAY_ON_BIT;                 //set display bit
   transmit(SPECIAL_COMMAND);                      //Send special command character
   transmit(_display); //Turn display on as before
   endTransmission();                              //Stop transmission
