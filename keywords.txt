@@ -44,6 +44,7 @@ disableSystemMessages	KEYWORD2
 enableSplash	KEYWORD2
 disableSplash	KEYWORD2
 saveSplash	KEYWORD2
+getAddress	KEYWORD2
 
 
 #######################################
