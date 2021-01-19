@@ -116,6 +116,7 @@ class SerLCD : public Print
 	void enableSplash();
 	void disableSplash();
 	void saveSplash();
+	byte getAddress();
 
   //virtual functions for write and print methods
   virtual size_t write(uint8_t);
